@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  playwright-render-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: playwright-render-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - API_KEY=${API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - STORAGE_BUCKET=${STORAGE_BUCKET:-renders}
+      - SIGNED_URL_EXPIRY_SECONDS=${SIGNED_URL_EXPIRY_SECONDS:-3600}
+      - REACT_APP_URL=${REACT_APP_URL}
+      - MAX_CONCURRENT_JOBS=${MAX_CONCURRENT_JOBS:-2}
+      - RENDER_TIMEOUT_MS=${RENDER_TIMEOUT_MS:-30000}
+      - NAVIGATION_TIMEOUT_MS=${NAVIGATION_TIMEOUT_MS:-15000}
+      - READY_FLAG_TIMEOUT_MS=${READY_FLAG_TIMEOUT_MS:-10000}
+      - CHROMIUM_HEADLESS=true
+      - CHROMIUM_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu
+    # Limit resources to prevent memory issues
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+    # Shared memory for Chromium
+    shm_size: "1gb"
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  default:
+    name: render-network
