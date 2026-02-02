@@ -10,8 +10,8 @@ let supabase: SupabaseClient | null = null;
 export function initStorage(): void {
   if (supabase) return;
 
-  // Skip initialization if credentials not provided (local testing mode)
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+  // Skip initialization if credentials not provided or empty (local testing mode)
+  if (!env.SUPABASE_URL || env.SUPABASE_URL === "" || !env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY === "") {
     console.warn("[Storage] Supabase credentials not configured - storage uploads disabled");
     return;
   }

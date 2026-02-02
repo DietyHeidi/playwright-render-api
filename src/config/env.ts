@@ -12,8 +12,8 @@ const envSchema = z.object({
   API_KEY: z.string().min(1, "API_KEY is required"),
 
   // Supabase (optional for local testing without storage upload)
-  SUPABASE_URL: z.string().url("SUPABASE_URL must be a valid URL").optional(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  SUPABASE_URL: z.string().url("SUPABASE_URL must be a valid URL").optional().or(z.literal("")),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional().or(z.literal("")),
 
   // Storage
   STORAGE_BUCKET: z.string().default("renders"),
